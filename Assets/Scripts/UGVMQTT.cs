@@ -23,7 +23,7 @@ public class UGVMQTT : MonoBehaviour
 
     float timeToSend;
     float waitTime = 1;
-    // Start is called before the first frame update
+    // Start is called before the first frame 
     void Start()
     {
         timeToSend = Time.time + waitTime;
