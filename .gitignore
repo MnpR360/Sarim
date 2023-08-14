@@ -9,7 +9,20 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/Assets/_TerrainAutoUpgrade
+/Assets/EasyTerrain
+/Assets/Free
 
+/Assets/New Road Materials
+/Assets/Standard Assets
+/Assets/TerrainSampleAssets
+/Assets/TextMesh Pro
+/Assets/Tom's Terrain Tools
+/Assets/UGV
+/Assets/YughuesFreeMetalMaterials
+/Assets/Tom's Terrain Tools
+
+!/Assets/Scripts/
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
