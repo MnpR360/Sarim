@@ -30,6 +30,6 @@ public class UIScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ChangeCurrentPos($"{ugv.position.x}, {ugv.position.z}");
+       // ChangeCurrentPos($"{ugv.position.x}, {ugv.position.z}");
     }
 }

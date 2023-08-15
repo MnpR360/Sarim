@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using uPLibrary.Networking.M2Mqtt;
 
 public class UGVMQTT : MonoBehaviour
 {
 
-
+    public TextMeshProUGUI currentPos;
 
     public ClientM2 clientClass;
 
@@ -17,7 +18,7 @@ public class UGVMQTT : MonoBehaviour
     public bool isEncrypted = true;
     //--------------------------------------------------
 
-    public Robot robot1 = new Robot(1, "dawood", "up", 1.0f, 25.054485321044923f, 55.38414001464844f, 90);
+    public Robot robot1 = new Robot(1, "dawood", "Active", 1.0f, 25.054485321044923f, 55.38414001464844f, 90);
 
 
 
@@ -92,10 +93,11 @@ public class UGVMQTT : MonoBehaviour
                 timeToSend = Time.time + waitTime;
 
                 CoordsConverter converter = GetComponent<CoordsConverter>();
-                Vector2 xyCoordinates = new Vector2(transform.position.x, transform.position.z); // Replace with your own x and y coordinates
+                Vector2 xyCoordinates = new Vector2(transform.position.z, transform.position.x); // Replace with your own x and y coordinates
                 Vector2 lonLat = converter.ConvertXZToLonLat(xyCoordinates);
 
                 robot1.UpdatePos(lonLat, transform.eulerAngles.y);
+                currentPos.text = robot1.GetLatitude() + " " + robot1.GetLongitude();  
                //Debug.Log(robot1.ToJson());
 
 

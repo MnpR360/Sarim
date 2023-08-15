@@ -11,7 +11,6 @@ public class ClientM2 : M2MqttUnityClient
 
 
 
-
     public void PublishMSG(string topicNamePub, string msgSend)
     {   
         client.Publish(topicNamePub, System.Text.Encoding.UTF8.GetBytes(msgSend), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
