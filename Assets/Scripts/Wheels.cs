@@ -1,8 +1,8 @@
-using NUnit.Framework;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using static Unity.VisualScripting.Member;
 
-public class VehicleController : MonoBehaviour
+public class Wheels : MonoBehaviour
 {
     // Wheel colliders for left and right wheels
     public WheelCollider[] leftWheelColliders;
@@ -51,56 +51,77 @@ public class VehicleController : MonoBehaviour
         else
         {
             Robot robot1 = GetComponent<UGVMQTT>().robot1;
-            CoordsConverter converter = GetComponent<CoordsConverter>();
-            Vector2 destination = converter.ConvertLonLatToXZ(new Vector2(robot1.currentMission.waypoints[robot1.index].lng, (robot1.currentMission.waypoints[robot1.index].lat)));
 
-            if (Vector2.Distance(new Vector2(transform.position.x, transform.position.z), destination) < threshhold && robot1.index < robot1.currentMission.waypoints.Length)
+            if (robot1.currentMission.id != null) {
+               // Debug.Log(robot1.currentMission.id);
+                CoordsConverter converter = GetComponent<CoordsConverter>();
 
-            {
-                robot1.index++;
+                if (robot1.index < robot1.currentMission.waypoints.Length)
+                {
+                    Vector2 destination = converter.ConvertLonLatToXZ(new Vector2(robot1.currentMission.waypoints[robot1.index].lat, (robot1.currentMission.waypoints[robot1.index].lng)));
+                    Debug.Log("hbjfhj " + Vector2.Distance(new Vector2(transform.position.z, transform.position.x), destination));
+                    
 
-                float angleIWantToGo = CalculateYawAngle(transform.position, new Vector3(destination.x, 0, destination.y)); // Replace with your desired angle
-                float currentAngle = transform.eulerAngles.y;
-                float angleSign = Mathf.Sign(angleIWantToGo - currentAngle);
-                float angleDiffAbs = Mathf.Abs(angleIWantToGo - currentAngle);
+                    if (Vector2.Distance(new Vector2(transform.position.z, transform.position.x), destination) > threshhold)
 
-                Debug.Log("angleDiffAbs  " + angleDiffAbs);
-                if (angleSign > 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
-                {
-                    ApplyMotorForce(0, -1);
-                    Debug.Log("Right+");
+                    {
+
+                       // Debug.Log(robot1.index);
+
+                        float angleIWantToGo = CalculateYawAngle(transform.position, new Vector3(destination.y, 0, destination.x)); // Replace with your desired angle
+                       // Debug.Log(angleIWantToGo); 
+                        float currentAngle = transform.eulerAngles.y;
+                        float angleSign = Mathf.Sign(angleIWantToGo - currentAngle);
+                        float angleDiffAbs = Mathf.Abs(angleIWantToGo - currentAngle);
+
+                        //Debug.Log("angleDiffAbs  " + angleDiffAbs + " current" + currentAngle);
+                        if (angleSign > 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+                        {
+                            ApplyMotorForce(1, -1);
+                            Debug.Log("Right+");
+                        }
+                        else if (angleSign > 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+                        {
+                            ApplyMotorForce(1, 1);
+                            Debug.Log("Left+");
+                        }
+                        else if (angleSign < 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+                        {
+                            ApplyMotorForce(1, 1);
+                            Debug.Log("Left-");
+                        }
+                        else if (angleSign < 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+                        {
+                            ApplyMotorForce(1, -1);
+                            Debug.Log("Right-");
+                        }
+                        else
+                            ApplyMotorForce(1, 0);
+
+                    } else
+                    {
+                        robot1.index++;
+                        //ApplyMotorForce(0, 0);
+                    }
+
+
                 }
-                else if (angleSign > 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
-                {
-                    ApplyMotorForce(0, 1);
-                    Debug.Log("Left+");
-                }
-                else if (angleSign < 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
-                {
-                    ApplyMotorForce(0, 1);
-                    Debug.Log("Left-");
-                }
-                else if (angleSign < 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
-                {
-                    ApplyMotorForce(0, -1);
-                    Debug.Log("Right-");
-                }
+                //ApplyMotorForce(1, 0);
+
+
+
+
+
                 else
-                    ApplyMotorForce(1, 1);
+                    ApplyMotorForce(0, 0);
+
+
+
+
 
             }
-
-
-
-
-            else
-                ApplyMotorForce(0, 0);
-
-
-
-
-
         }
+
 
 
 

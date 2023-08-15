@@ -9,6 +9,8 @@ public class Robot
     public float Latitude;
     public float Longitude;
     public float Heading;
+    public int index = 0;
+
 
     public Environment_Struct.Mission currentMission;
 
@@ -125,6 +127,10 @@ public class Robot
     public void SetMission(Environment_Struct.Mission missionData)
     {
         currentMission = missionData;
+
+        index = 0;
+
+
         // check if current mission is not null 
 
         // if null assing the current missionData to current mission 

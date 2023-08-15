@@ -75,7 +75,7 @@ public class UGVMQTT : MonoBehaviour
                         //Environment_Struct 
                         robot1.SetMission(JsonUtility.FromJson<Environment_Struct.Mission>(msg.message));
 
-                        robot1.currentMission.waypoints[0]
+                       
 
 
 
