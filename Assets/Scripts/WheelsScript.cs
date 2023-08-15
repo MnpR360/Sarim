@@ -23,19 +23,12 @@ public class VehicleController : MonoBehaviour
     public float differentialFactor = 0.5f; // Adjust this value to control differential steering
     public float rotatePower = 2f;
 
-    // Rotation parameters
-    public float yIncAngle = 1;
-    private float yIncAngleOld = 1;
-    private float yTarget;
+
 
 
     private void Start()
     {
-        // Initialize rotation variables
-        yTarget = (transform.rotation.eulerAngles.y + yIncAngle) % 360;
-        yIncAngleOld = yIncAngle;
 
-        // init mqqtt
 
     }
 
@@ -48,31 +41,13 @@ public class VehicleController : MonoBehaviour
         // Apply motor force
         ApplyMotorForce(verticalInput);
 
-        // Steering logic
-        if (Mathf.Abs(yTarget - transform.rotation.eulerAngles.y) > 0.5 &&
-            (yIncAngleOld < -0.1 || yIncAngleOld > 0.1))
-        {
-            //ApplySteering(Mathf.Sign(yIncAngleOld));
-            ApplySteering(horizontalInput);
-            //Debug.Log(transform.rotation.eulerAngles.y + " y target: " + yTarget);
-        }
-        else
-        {
-            yIncAngleOld = yIncAngle;
-            yTarget = (transform.rotation.eulerAngles.y + yIncAngleOld) % 360;
 
-            // Reset motor torque when not steering
-            motorTorque.leftTorque = 0;
-            motorTorque.rightTorque = 0;
-            Debug.Log("else");
-        }
+         ApplySteering(horizontalInput);
+ 
+    
 
         // Update visual wheels
         UpdateVisualWheels();
-
-        // ve
-
-
     }
 
     // Apply motor force based on speed limit
@@ -85,7 +60,7 @@ public class VehicleController : MonoBehaviour
         {
             foreach (WheelCollider wheelCollider in leftWheelColliders)
             {
-                wheelCollider.motorTorque = input * motorForce + motorTorque.leftTorque;
+                wheelCollider.motorTorque = input * motorForce;// + motorTorque.leftTorque;
             }
             foreach (WheelCollider wheelCollider in rightWheelColliders)
             {
@@ -94,6 +69,10 @@ public class VehicleController : MonoBehaviour
         }
         else
         {
+            foreach (WheelCollider wheelCollider in rightWheelColliders)
+            {
+                wheelCollider.motorTorque = 0;
+            }
         }
     }
 
