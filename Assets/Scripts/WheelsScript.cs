@@ -1,13 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VehicleController : MonoBehaviour
 {
-    // jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
-    // Motor torque values container
-    private MotorTorqueValues motorTorque = new MotorTorqueValues();
-
     // Wheel colliders for left and right wheels
     public WheelCollider[] leftWheelColliders;
     public WheelCollider[] rightWheelColliders;
@@ -23,89 +17,114 @@ public class VehicleController : MonoBehaviour
     public float differentialFactor = 0.5f; // Adjust this value to control differential steering
     public float rotatePower = 2f;
 
+    // Flag to control user input
+    public bool userInputEnabled = true;
 
-
-
-    private void Start()
-    {
-
-
-    }
+    private float desiredAngle = 30f; // Desired angle in degrees
 
     private void FixedUpdate()
     {
-        // Read user input
-        float verticalInput = Input.GetAxis("Vertical"); // W/S or Up/Down arrow keys
-        float horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right arrow keys
+        // Read user input if enabled
+        if (userInputEnabled)
+        {
+            float verticalInput = Input.GetAxis("Vertical"); // W/S or Up/Down arrow keys
+            float horizontalInput = -Input.GetAxis("Horizontal"); // A/D or Left/Right arrow keys
 
-        // Apply motor force
-        ApplyMotorForce(verticalInput);
+            // Apply motor force only if user input is enabled
+            if (userInputEnabled)
+            {
+                ApplyMotorForce(verticalInput, horizontalInput);
+            }
+
+        }
+        else
+        {
+            float angleIWantToGo = 299f; // Replace with your desired angle
+            float currentAngle = transform.eulerAngles.y;
+            float angleSign = Mathf.Sign(angleIWantToGo - currentAngle);
+            float angleDiffAbs = Mathf.Abs(angleIWantToGo - currentAngle);
+
+            Debug.Log("angleDiffAbs  " + angleDiffAbs);
+            if (angleSign > 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+            {
+                ApplyMotorForce(0, -1);
+                Debug.Log("Right+");
+            }
+            else if (angleSign > 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+            {
+                ApplyMotorForce(0, 1);
+                Debug.Log("Left+");
+            }
+            else if (angleSign < 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+            {
+                ApplyMotorForce(0, 1);
+                Debug.Log("Left-");
+            }
+            else if (angleSign < 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+            {
+                ApplyMotorForce(0, -1);
+                Debug.Log("Right-");
+            }
+            else
+                ApplyMotorForce(0, 0);
+        }
 
 
-         ApplySteering(horizontalInput);
- 
-    
 
         // Update visual wheels
         UpdateVisualWheels();
     }
 
-    // Apply motor force based on speed limit
-    void ApplyMotorForce(float input)
+    // Calculate the yaw angle (y-rotation) needed to face point B from point A
+    float CalculateYawAngle(Vector3 pointA, Vector3 pointB)
     {
-        float currentSpeed = Mathf.Abs(leftWheelColliders[0].rpm *
-            (2.0f * Mathf.PI * leftWheelColliders[0].radius) / 60.0f);
+        Vector3 directionToB = (pointB - pointA).normalized;
+        float angle = Mathf.Atan2(directionToB.x, directionToB.z) * Mathf.Rad2Deg;
+        if (angle < 0)
+            return angle + 360;
+
+        return angle;
+    }
+
+    // Apply motor force based on speed limit
+    void ApplyMotorForce(float verticalInput, float horizontalInput)
+    {
+        float currentSpeed = leftWheelColliders[0].rpm * (leftWheelColliders[0].radius * 2 * Mathf.PI) * 60 / 1000;
 
         if (Mathf.Abs(currentSpeed) < speedLimit)
         {
-            foreach (WheelCollider wheelCollider in leftWheelColliders)
+            for (int i = 0; i < leftWheelColliders.Length; i++)
             {
-                wheelCollider.motorTorque = input * motorForce;// + motorTorque.leftTorque;
-            }
-            foreach (WheelCollider wheelCollider in rightWheelColliders)
-            {
-                wheelCollider.motorTorque = input * motorForce + motorTorque.rightTorque;
+                leftWheelColliders[i].motorTorque = verticalInput * motorForce * Time.deltaTime;
+                rightWheelColliders[i].motorTorque = verticalInput * motorForce * Time.deltaTime;
             }
         }
-        else
-        {
-            foreach (WheelCollider wheelCollider in rightWheelColliders)
-            {
-                wheelCollider.motorTorque = 0;
-            }
-        }
-    }
 
-    // Apply steering torque
-    void ApplySteering(float dir)
-    {
-        float leftTorque = dir * motorForce * rotatePower;
-        float rightTorque = -dir * motorForce * rotatePower;
+        // Differential control for rotation
+        float rotationFactor = horizontalInput * rotatePower;
 
-        foreach (WheelCollider wheelCollider in leftWheelColliders)
+        for (int i = 0; i < leftWheelColliders.Length; i++)
         {
-            motorTorque.leftTorque = leftTorque;
-        }
-        foreach (WheelCollider wheelCollider in rightWheelColliders)
-        {
-            motorTorque.rightTorque = rightTorque;
+            if (rotationFactor > 0)
+            {
+                leftWheelColliders[i].motorTorque -= rotationFactor * motorForce * Time.deltaTime;
+                rightWheelColliders[i].motorTorque += rotationFactor * motorForce * Time.deltaTime;
+            }
+            else if (rotationFactor < 0)
+            {
+                leftWheelColliders[i].motorTorque += Mathf.Abs(rotationFactor) * motorForce * Time.deltaTime;
+                rightWheelColliders[i].motorTorque -= Mathf.Abs(rotationFactor) * motorForce * Time.deltaTime;
+            }
         }
     }
 
     // Update visual wheels' positions and rotations
     void UpdateVisualWheels()
     {
-        UpdateVisualWheels(leftWheelColliders, leftVisualWheels);
-        UpdateVisualWheels(rightWheelColliders, rightVisualWheels);
-    }
-
-    // Helper method to update visual wheels
-    void UpdateVisualWheels(WheelCollider[] wheelColliders, GameObject[] visualWheels)
-    {
-        for (int i = 0; i < visualWheels.Length; i++)
+        for (int i = 0; i < leftVisualWheels.Length; i++)
         {
-            WheelCollider wheelCollider = wheelColliders[i];
-            GameObject visualWheel = visualWheels[i];
+            WheelCollider wheelCollider = leftWheelColliders[i];
+            GameObject visualWheel = leftVisualWheels[i];
 
             Vector3 wheelPosition;
             Quaternion wheelRotation;
@@ -113,12 +132,17 @@ public class VehicleController : MonoBehaviour
             visualWheel.transform.position = wheelPosition;
             visualWheel.transform.rotation = wheelRotation;
         }
-    }
 
-    // Nested class to store motor torque values
-    private class MotorTorqueValues
-    {
-        public float leftTorque;
-        public float rightTorque;
+        for (int i = 0; i < rightVisualWheels.Length; i++)
+        {
+            WheelCollider wheelCollider = rightWheelColliders[i];
+            GameObject visualWheel = rightVisualWheels[i];
+
+            Vector3 wheelPosition;
+            Quaternion wheelRotation;
+            wheelCollider.GetWorldPose(out wheelPosition, out wheelRotation);
+            visualWheel.transform.position = wheelPosition;
+            visualWheel.transform.rotation = wheelRotation;
+        }
     }
 }
