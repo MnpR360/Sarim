@@ -10,7 +10,7 @@ public class Robot
     public float Longitude;
     public float Heading;
 
-    public Mission currentMission;
+    public Environment_Struct.Mission currentMission;
 
 
     public Robot(int id, string name, string status, float battery,
@@ -120,19 +120,16 @@ public class Robot
 
     }
 
-    public struct Mission
-    {
-        public int MissionID;
-        public Vector2[] Coordinates;
-        public int[] TargetIDs;
-    }
 
 
-    public void SetMission(int missionID, Vector2[] coordinates, int[] targetIDs)
+    public void SetMission(Environment_Struct.Mission missionData)
     {
-        currentMission.MissionID = missionID;
-        currentMission.Coordinates = coordinates;
-        currentMission.TargetIDs = targetIDs;
+        currentMission = missionData;
+        // check if current mission is not null 
+
+        // if null assing the current missionData to current mission 
+
+        // if not null add on waypoints to the current list of waypoints
     }
 
 }

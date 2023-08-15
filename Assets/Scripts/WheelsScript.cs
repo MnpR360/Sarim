@@ -1,4 +1,6 @@
+using NUnit.Framework;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class VehicleController : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class VehicleController : MonoBehaviour
     // Visual wheels game objects
     public GameObject[] leftVisualWheels;
     public GameObject[] rightVisualWheels;
+
+    Vector2 destination;
 
     // Vehicle parameters
     public float motorForce = 1000f;
@@ -21,6 +25,11 @@ public class VehicleController : MonoBehaviour
     public bool userInputEnabled = true;
 
     private float desiredAngle = 30f; // Desired angle in degrees
+
+    int index = 0;
+    float threshhold = 3f;
+
+
 
     private void FixedUpdate()
     {
@@ -39,34 +48,57 @@ public class VehicleController : MonoBehaviour
         }
         else
         {
-            float angleIWantToGo = 299f; // Replace with your desired angle
-            float currentAngle = transform.eulerAngles.y;
-            float angleSign = Mathf.Sign(angleIWantToGo - currentAngle);
-            float angleDiffAbs = Mathf.Abs(angleIWantToGo - currentAngle);
+            Environment_Struct.Waypoint[] waypoints = GetComponent<UGVMQTT>().robot1.currentMission.waypoints;
+            CoordsConverter converter = GetComponent<CoordsConverter>();
+            Vector2 destination = converter.ConvertLonLatToXZ(new Vector2(waypoints[index].lng, waypoints[index].lat));
+            //Vector2 hjj = CoordsConverter.ConvertLonLatToXZ(new Vector2(waypoints[index].lng, waypoints[index].lat));
 
-            Debug.Log("angleDiffAbs  " + angleDiffAbs);
-            if (angleSign > 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+            if (Vector2.Distance(new Vector2(transform.position.x, transform.position.z), destination) < threshhold && index < waypoints.Length)
+
             {
-                ApplyMotorForce(0, -1);
-                Debug.Log("Right+");
+                index++;
+
+                float angleIWantToGo = CalculateYawAngle(transform.position, new Vector3(destination.x, 0, destination.y)); // Replace with your desired angle
+                float currentAngle = transform.eulerAngles.y;
+                float angleSign = Mathf.Sign(angleIWantToGo - currentAngle);
+                float angleDiffAbs = Mathf.Abs(angleIWantToGo - currentAngle);
+
+                Debug.Log("angleDiffAbs  " + angleDiffAbs);
+                if (angleSign > 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+                {
+                    ApplyMotorForce(0, -1);
+                    Debug.Log("Right+");
+                }
+                else if (angleSign > 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+                {
+                    ApplyMotorForce(0, 1);
+                    Debug.Log("Left+");
+                }
+                else if (angleSign < 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
+                {
+                    ApplyMotorForce(0, 1);
+                    Debug.Log("Left-");
+                }
+                else if (angleSign < 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
+                {
+                    ApplyMotorForce(0, -1);
+                    Debug.Log("Right-");
+                }
+                else
+                    ApplyMotorForce(1, 1);
+
             }
-            else if (angleSign > 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
-            {
-                ApplyMotorForce(0, 1);
-                Debug.Log("Left+");
-            }
-            else if (angleSign < 0 && angleDiffAbs < 180 && angleDiffAbs > 1f)
-            {
-                ApplyMotorForce(0, 1);
-                Debug.Log("Left-");
-            }
-            else if (angleSign < 0 && angleDiffAbs > 180 && angleDiffAbs > 1f)
-            {
-                ApplyMotorForce(0, -1);
-                Debug.Log("Right-");
-            }
+
+
+
+
             else
                 ApplyMotorForce(0, 0);
+
+
+
+
+
         }
 
 
