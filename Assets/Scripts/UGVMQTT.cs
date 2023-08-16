@@ -44,7 +44,7 @@ public class UGVMQTT : MonoBehaviour
     {
         yield return new WaitForSeconds(1.0f);
 
-        // Now that the connection is established, subscribe to robot 1's topic
+        // Now that the connection is established, subscribe to robot 1's topic test
         clientClass.SubscribeTopics(robot1.GetTopicNameSub());
     }
 
