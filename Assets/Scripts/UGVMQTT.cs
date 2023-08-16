@@ -1,8 +1,10 @@
+using Palmmedia.ReportGenerator.Core.Common;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using uPLibrary.Networking.M2Mqtt;
+
 
 public class UGVMQTT : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class UGVMQTT : MonoBehaviour
     public TextMeshProUGUI currentPos;
 
     public ClientM2 clientClass;
+
 
     //these values are taken by M2MqttUnityClient class
     [Header("MQTT broker configuration")]
@@ -48,6 +51,10 @@ public class UGVMQTT : MonoBehaviour
         clientClass.SubscribeTopics(robot1.GetTopicNameSub());
     }
 
+    
+    //public Robot getRobotByIndex()
+
+
 
     public void Command( )
     {
@@ -60,9 +67,17 @@ public class UGVMQTT : MonoBehaviour
             {
                 Debug.Log(msg.topic + " " + msg.message);
 
+                // TODO: let this below code be module based on the number of robots 
+
                 switch (msg.topic)
                 {
-                    case "mission":
+                    case "sarim-ae/rover/1":
+                        //Environment_Struct 
+                        robot1.SetMission(JsonUtility.FromJson<Environment_Struct.Mission>(msg.message));
+
+                       
+
+
 
 
                         break;

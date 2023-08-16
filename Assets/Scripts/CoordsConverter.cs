@@ -25,6 +25,6 @@ public class CoordsConverter : MonoBehaviour
         float deltaX = (lonLatCoordinates.x - originLonLat.x) * (Mathf.PI / 180f) * EarthRadius;
         float deltaZ = (lonLatCoordinates.y - originLonLat.y) * (Mathf.PI / 180f) * EarthRadius * Mathf.Cos(originLonLat.y * Mathf.Deg2Rad);
 
-        return new Vector2(originXZ.x + deltaX, originXZ.y + deltaZ);
+        return new Vector2(originXZ.x + deltaX, originXZ.y + deltaZ );
     }
 }
