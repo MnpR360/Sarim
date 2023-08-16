@@ -21,7 +21,7 @@ public class UIScript : MonoBehaviour
         currentDisText.text = CP;
     }
 
-     // Start is called before the first frame update
+     // Start is called before the first frame update11
     void Start()
     {
        
